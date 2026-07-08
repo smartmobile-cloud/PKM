@@ -1,7 +1,7 @@
 # 📡 SEMAR - Sarana Edukasi Monitoring Alam & Radiasi
 
 <div align="center">
-  <img src="PROJECT ROBOT/logo gabungan.png" alt="Logo SEMAR" width="320px" style="filter: drop-shadow(0px 10px 20px rgba(139, 92, 246, 0.4)); margin-bottom: 20px;">
+  <img src="PROJECT ROBOT/logodanu.png" alt="Logo SEMAR" width="320px" style="filter: drop-shadow(0px 10px 20px rgba(139, 92, 246, 0.4)); margin-bottom: 20px;">
   
   <p><strong>Sistem Pemantauan Radiasi Lingkungan & FPV Streaming berbasis Internet of Things (IoT) dan Robotika Cerdas</strong></p>
 
