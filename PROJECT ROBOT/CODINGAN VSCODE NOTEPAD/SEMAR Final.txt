@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SEMAR - Monitoring Radiasi</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        /* --- CSS UTAMA --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; transition: all 0.3s ease; }
+
+        body {
+            background-color: #050505;
+            color: white;
+            min-height: 100vh;
+            display: flex; flex-direction: column;
+            overflow-x: hidden;
+            background-image: radial-gradient(circle, #3b0764 1.5px, transparent 1.5px);
+            background-size: 24px 24px;
+            box-shadow: inset 0 0 200px black;
+        }
+
+        /* HEADER */
+        header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 20px 50px; position: relative; z-index: 10; width: 100%;
+        }
+        .logo-container { display: flex; align-items: center; gap: 10px; font-weight: 900; letter-spacing: 1px; font-size: 1.2rem; }
+        .dots-icon { display: flex; flex-direction: column; gap: 3px; }
+        .dot { width: 6px; height: 6px; background: white; border-radius: 50%; }
+
+        nav.nav-center {
+            background: rgba(255, 255, 255, 0.1); padding: 10px 30px;
+            border-radius: 30px; border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        nav a { color: #aaa; text-decoration: none; margin: 0 15px; font-size: 0.9rem; cursor: pointer; }
+        nav a:hover, nav a.active { color: white; }
+
+        .btn-purple {
+            background: linear-gradient(to right, #8B5CF6, #6D28D9);
+            color: white; text-decoration: none; padding: 10px 30px;
+            border-radius: 30px; font-weight: 700; cursor: pointer;
+            box-shadow: 0 4px 15px rgba(109, 40, 217, 0.3);
+            white-space: nowrap;
+        }
+        .btn-purple:hover { transform: scale(1.05); }
+
+        /* CONTAINER UTAMA */
+        .main-container {
+            flex: 1; display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            width: 100%; padding: 20px;
+        }
+
+        /* HOME (SEMAR) */
+        #home-view { text-align: center; }
+        h1.judul-besar {
+            font-size: 8rem; font-weight: 900; letter-spacing: -3px; margin-bottom: 10px;
+            background: -webkit-linear-gradient(top, #ffffff, #a8a8a8);
+            background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        p.sub-judul { font-size: 1.5rem; color: #ccc; }
+
+        /* DASHBOARD (CARLINS) */
+        #dashboard-view { display: none; width: 100%; max-width: 1000px; }
+        .cards-wrapper { display: flex; justify-content: center; gap: 30px; margin-bottom: 30px; flex-wrap: wrap; }
+        
+        .card {
+            background: white; color: black; 
+            width: 250px; height: 180px;
+            border-radius: 40px; display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            opacity: 0; 
+            /* 🔥 EFEK HOVER: Agar kartu terasa interaktif saat disentuh mouse 🔥 */
+            cursor: default;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        /* Saat mouse di atas kartu, kartu naik dikit dan glowing ungu */
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(139, 92, 246, 0.4);
+        }
+
+        .card h2 { font-size: 3.5rem; font-weight: 900; margin: 0; color: #111; }
+        .card span { font-size: 1rem; font-weight: 700; color: #555; margin-top: 5px; }
+
+        .chart-box {
+            background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 30px; padding: 20px; margin-bottom: 20px;
+            width: 100%; height: 350px; position: relative; opacity: 0;
+        }
+
+        .status-bar {
+            width: 100%; max-width: 600px; height: 50px; background: #6D28D9; margin: 0 auto;
+            border-radius: 30px; display: flex; justify-content: center; align-items: center;
+            font-weight: bold; font-size: 1.1rem; box-shadow: 0 0 20px rgba(109, 40, 217, 0.5);
+            opacity: 0; text-align: center; padding: 0 20px;
+        }
+        .aman { background: #22c55e; box-shadow: 0 0 30px #22c55e; opacity: 1 !important; }
+        .waspada { background: #eab308; box-shadow: 0 0 30px #eab308; color: black; opacity: 1 !important; }
+        .bahaya { background: #ef4444; box-shadow: 0 0 30px #ef4444; opacity: 1 !important; animation: kedip 1s infinite, munculPelan 0.5s ease-out forwards; }
+        
+        @keyframes kedip { 0% {opacity: 1;} 50% {opacity: 0.7;} 100% {opacity: 1;} }
+
+        /* ANIMASI INTRO */
+        @keyframes munculPelan {
+            0% { opacity: 0; transform: translateY(30px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        .efek-muncul { animation: munculPelan 0.8s ease-out forwards; }
+        .delay-1 { animation-delay: 0.2s; }
+        .delay-2 { animation-delay: 0.4s; }
+        .delay-3 { animation-delay: 0.6s; }
+        .delay-4 { animation-delay: 0.8s; }
+
+        /* RESPONSIF HP */
+        @media (max-width: 768px) {
+            header { flex-direction: column; gap: 15px; padding: 15px; }
+            .logo-container { font-size: 1.5rem; margin-bottom: 5px; }
+            nav.nav-center { width: 100%; text-align: center; padding: 8px; }
+            .btn-purple { width: 100%; text-align: center; margin-top: 5px; }
+            .cards-wrapper { flex-direction: column; gap: 15px; margin-bottom: 20px; align-items: center; }
+            .card { width: 90%; height: 120px; border-radius: 25px; flex-direction: row; justify-content: space-between; padding: 0 30px; }
+            .card h2 { font-size: 2.5rem; }
+            .card span { font-size: 0.9rem; }
+            h1.judul-besar { font-size: 4rem; margin-top: 20px; }
+            p.sub-judul { font-size: 1rem; padding: 0 10px; }
+            .chart-box { height: 250px; }
+            .status-bar { height: 50px; font-size: 0.9rem; width: 90%; }
+            /* Matikan hover effect di HP karena tidak ada mouse */
+            .card:hover { transform: none; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo-container">
+            <div class="dots-icon"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+            PKM THREE
+        </div>
+        <nav class="nav-center">
+            <a onclick="keHome()" id="btn-home" class="active">Home</a>
+            <a href="#">About us</a>
+        </nav>
+        <a onclick="keDashboard()" class="btn-purple">CARLINS</a>
+    </header>
+
+    <div class="main-container">
+        <section id="home-view">
+            <h1 class="judul-besar efek-muncul">SEMAR</h1>
+            <p class="sub-judul efek-muncul delay-1">Sarana Edukasi Monitoring Alam & Radiasi</p>
+        </section>
+
+        <section id="dashboard-view">
+            <div class="cards-wrapper">
+                <div class="card efek-muncul"><h2 id="nilai-cps">0</h2><span>CPS</span></div>
+                <div class="card efek-muncul delay-1"><h2 id="nilai-cpm">0</h2><span>CPM</span></div>
+                <div class="card efek-muncul delay-2"><h2 id="nilai-usv">0.00</h2><span>μSv/h</span></div>
+            </div>
+            <div class="chart-box efek-muncul delay-3"><canvas id="grafikRadiasi"></canvas></div>
+            <div id="kotak-status" class="status-bar efek-muncul delay-4">MENUNGGU DATA...</div>
+        </section>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        // ⚠️⚠️⚠️ PASTE CONFIG FIREBASE KAMU DI SINI ⚠️⚠️⚠️
+        const firebaseConfig = {
+            apiKey: "AIzaSyDwN39QZB-XIJmxWDJWtNayFbLbZeUSzLA",
+            authDomain: "carlins-three.firebaseapp.com",
+            databaseURL: "https://carlins-three-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "carlins-three",
+            storageBucket: "carlins-three.firebasestorage.app",
+            messagingSenderId: "370131252554",
+            appId: "1:370131252554:web:cdf044434b4a85cc9fbdb3"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const dataRef = ref(db, 'radiasi'); 
+
+        let myChart;
+        function initChart() {
+            const ctx = document.getElementById('grafikRadiasi').getContext('2d');
+            myChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Tingkat Radiasi (μSv/h)',
+                        data: [],
+                        borderColor: '#8B5CF6', backgroundColor: 'rgba(139, 92, 246, 0.2)',
+                        borderWidth: 3, tension: 0.4, pointRadius: 0, fill: true
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { labels: { color: 'white' } } },
+                    scales: { y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#ccc' } }, x: { grid: { display: false }, ticks: { display: false } } },
+                    animation: { duration: 0 }
+                }
+            });
+        }
+        initChart();
+
+        onValue(dataRef, (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                const cps = data.cps || 0; 
+                const cpm = data.cpm || 0;
+                const usv = parseFloat(data.dose || 0); 
+
+                document.getElementById('nilai-cps').innerText = cps;
+                document.getElementById('nilai-cpm').innerText = cpm;
+                document.getElementById('nilai-usv').innerText = usv.toFixed(4);
+
+                const kotakStatus = document.getElementById('kotak-status');
+                kotakStatus.classList.remove('aman', 'waspada', 'bahaya');
+                if (usv < 0.5) { kotakStatus.classList.add('aman'); kotakStatus.innerText = "KONDISI AMAN"; }
+                else if (usv >= 0.5 && usv < 2.0) { kotakStatus.classList.add('waspada'); kotakStatus.innerText = "WASPADA!"; }
+                else { kotakStatus.classList.add('bahaya'); kotakStatus.innerText = "BAHAYA RADIASI TINGGI!"; }
+
+                if (myChart) {
+                    const waktuSekarang = new Date().toLocaleTimeString();
+                    myChart.data.labels.push(waktuSekarang);
+                    myChart.data.datasets[0].data.push(usv);
+                    if (myChart.data.labels.length > 20) { myChart.data.labels.shift(); myChart.data.datasets[0].data.shift(); }
+                    myChart.update();
+                }
+            }
+        });
+
+        window.keDashboard = function() {
+            document.getElementById('home-view').style.display = 'none';
+            document.getElementById('dashboard-view').style.display = 'block';
+            document.getElementById('btn-home').classList.remove('active');
+        }
+        window.keHome = function() {
+            document.getElementById('dashboard-view').style.display = 'none';
+            document.getElementById('home-view').style.display = 'block';
+            document.getElementById('btn-home').classList.add('active');
+        }
+    </script>
+</body>
+</html>

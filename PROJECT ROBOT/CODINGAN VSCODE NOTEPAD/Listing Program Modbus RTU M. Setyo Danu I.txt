@@ -1,0 +1,80 @@
+const int PIN_ARAH_RS485 = 2; 
+
+void aturTeganganDAC(int nomorKanal, float targetVolt);
+
+void setup() {
+  Serial.begin(9600);
+  Serial2.begin(9600); 
+  
+  pinMode(PIN_ARAH_RS485, OUTPUT);
+  digitalWrite(PIN_ARAH_RS485, LOW);
+
+  Serial.println;
+  delay(1000); 
+
+  Serial.println;
+  
+  aturTeganganDAC(1, 2.5);
+  delay(200); 
+  
+  aturTeganganDAC(2, 4.5);
+  
+  Serial.println("Selesai. O1 = 2.5V, O2 = 4.5V");
+  Serial.println("Ketik perintah baru (Contoh: 1 3.5) lalu Enter.");
+}
+
+void loop() {
+  if (Serial.available() > 0) {
+    
+    int kanal = Serial.parseInt();     
+    float volt = Serial.parseFloat(); 
+    
+    while(Serial.available() > 0) Serial.read(); 
+
+    if (kanal == 1 || kanal == 2) {
+        aturTeganganDAC(kanal, volt);
+        Serial.print("Berhasil! Kanal "); 
+        Serial.print(kanal);
+        Serial.print(" diubah menjadi "); 
+        Serial.print(volt); 
+        Serial.println(" Volt");
+    } 
+    else {
+        if(kanal != 0) Serial.println("Salah! Masukkan kanal 1 atau 2.");
+    }
+  }
+}
+
+void aturTeganganDAC(int nomorKanal, float targetVolt) {
+  uint16_t dataMentah = (uint16_t)(targetVolt * 100); 
+  uint16_t alamatRegister = nomorKanal - 1;     
+
+  byte paket[8];
+  paket[0] = 0x01;            
+  paket[1] = 0x06;            
+  paket[2] = highByte(alamatRegister); 
+  paket[3] = lowByte(alamatRegister);  
+  paket[4] = highByte(dataMentah);     
+  paket[5] = lowByte(dataMentah);      
+
+  uint16_t kodeCRC = 0xFFFF;
+  for (int i = 0; i < 6; i++) {
+    kodeCRC ^= (uint16_t)paket[i];
+    for (int j = 8; j != 0; j--) {
+      if ((kodeCRC & 0x0001) != 0) {
+        kodeCRC >>= 1;
+        kodeCRC ^= 0xA001;
+      } else {
+        kodeCRC >>= 1;
+      }
+    }
+  }
+  
+  paket[6] = lowByte(kodeCRC);
+  paket[7] = highByte(kodeCRC);
+
+  digitalWrite(PIN_ARAH_RS485, HIGH); 
+  Serial2.write(paket, 8);            
+  Serial2.flush();                    
+  digitalWrite(PIN_ARAH_RS485, LOW);  
+}

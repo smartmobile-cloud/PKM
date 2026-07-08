@@ -1,0 +1,21 @@
+# Dependency directories
+node_modules/
+.firebase/
+
+# Log files
+*.log
+logs/
+
+# Compiled files / Build artifacts
+*.o
+*.d
+*.elf
+*.bin
+*.hex
+
+# Local/IDE configs and OS files
+.env
+.env.local
+.DS_Store
+Thumbs.db
+Desktop.ini

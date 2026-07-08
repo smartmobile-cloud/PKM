@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mobile Radiation Robot</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <header class="navbar">
+    <h2>Mobile Radiation Robot</h2>
+    <nav>
+      <a href="#about">Tentang</a>
+      <a href="#features">Fitur</a>
+      <a href="#team">Tim</a>
+      <a href="#footer">Kontak</a>
+    </nav>
+  </header>
+
+  <!-- HERO SECTION -->
+  <section class="hero">
+    <h1>Robot Monitoring Radiasi Berbasis IoT</h1>
+    <p>Mendeteksi radiasi secara real-time menggunakan ESP32, sensor GM Tube, dan teknologi IoT.</p>
+    <a href="#about" class="btn">Pelajari Proyek</a>
+  </section>
+
+  <!-- ABOUT SECTION -->
+  <section id="about" class="section">
+    <h3>Tentang Proyek</h3>
+    <p>
+      Sistem mobile monitoring radiasi yang dirancang untuk mendeteksi tingkat radiasi pada area tertentu secara real-time dan menampilkannya melalui dashboard IoT serta streaming kamera.
+    </p>
+  </section>
+
+  <!-- FEATURE SECTION -->
+  <section id="features" class="section alt">
+    <h3>Fitur Utama</h3>
+    <ul class="feature-list">
+      <li>🔹 Live Video Monitoring</li>
+      <li>🔹 Remote Robot Control</li>
+      <li>🔹 Sensor Radiasi GM Tube</li>
+      <li>🔹 IoT Dashboard Monitoring</li>
+    </ul>
+  </section>
+
+  <!-- TEAM SECTION -->
+  <section id="team" class="section">
+    <h3>Tim Pengembang</h3>
+    <p>Syahru Zaky F.R • Danu • dll</p>
+  </section>
+
+  <!-- FOOTER -->
+  <footer id="footer">
+    <p>© 2025 — Mobile Radiation Robot Project</p>
+  </footer>
+
+</body>
+</html>
